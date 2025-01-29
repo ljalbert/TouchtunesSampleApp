@@ -37,26 +37,55 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.lja.touchtunessampleapp.R
-import com.lja.touchtunessampleapp.common.Event
-import com.lja.touchtunessampleapp.common.State
-import com.lja.touchtunessampleapp.search.domain.model.SearchResultEntity
-import com.lja.touchtunessampleapp.search.domain.viewmodel.SearchViewModel
+import com.lja.touchtunessampleapp.domain.model.SearchResultEntity
+import com.lja.touchtunessampleapp.ui.stateMachine.State
 import com.lja.touchtunessampleapp.ui.components.AlbumDialog
 import com.lja.touchtunessampleapp.ui.components.CircularProgressBar
 import com.lja.touchtunessampleapp.ui.theme.TouchTunesSampleAppTheme
+import com.lja.touchtunessampleapp.ui.viewmodel.SearchViewModel
 
 
 @Composable
 fun SearchScreen(
     state: State,
-    event: Event,
-    onSearchTextChanged: (String) -> Unit,
-    onSearchItemClicked: (Int?) -> Unit,
-    onDetailDialogPositiveButtonClicked: () -> Unit,
+    onSearchQueryChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val openDialog = remember { mutableStateOf(false) }
+    val itemIdClicked = remember { mutableStateOf(0) }
+
+    SearchContent(
+        modifier = modifier,
+        state = state,
+        onSearchQueryChanged = onSearchQueryChanged,
+        onSearchItemClicked = { id ->
+            itemIdClicked.value = id
+            openDialog.value = true
+        }
+    )
+
+    if (openDialog.value && state is SearchViewModel.SearchState.Success) {
+        state.results.firstOrNull { it.id == itemIdClicked.value }?.let { item ->
+            AlbumDialog(
+                onConfirmationClicked = { openDialog.value = false },
+                genre = item.genreName,
+                price = item.price,
+                currency = item.currency,
+                copyright = item.copyright
+            )
+        }
+    }
+}
+
+@Composable
+fun SearchContent(
+    state: State,
+    onSearchQueryChanged: (query: String) -> Unit,
+    onSearchItemClicked: (id: Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(modifier = modifier) {
-        SearchView(onSearchTextChanged = onSearchTextChanged)
+        SearchBar(onSearchQueryChanged = onSearchQueryChanged)
 
         when (state) {
             is SearchViewModel.SearchState.Loading -> {
@@ -66,7 +95,7 @@ fun SearchScreen(
             is SearchViewModel.SearchState.Success -> {
                 SearchList(
                     results = state.results,
-                    onSearchItemClicked = onSearchItemClicked
+                    onSearchItemClicked = onSearchItemClicked,
                 )
             }
 
@@ -77,38 +106,25 @@ fun SearchScreen(
 
             is SearchViewModel.SearchState.None -> {}
         }
-
-
-        when (event) {
-            is SearchViewModel.SearchEvent.Detail -> {
-                with(event.resultDetail) {
-                    AlbumDialog(
-                        onDialogPositiveButtonClicked = onDetailDialogPositiveButtonClicked,
-                        genre = genreName,
-                        price = price,
-                        currency = currency,
-                        copyright = copyright
-                    )
-                }
-            }
-        }
     }
 }
 
-
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun SearchView(onSearchTextChanged: (String) -> Unit) {
+fun SearchBar(
+    onSearchQueryChanged: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val textFieldState = remember { mutableStateOf(TextFieldValue("")) }
 
     TextField(
+        modifier = modifier.fillMaxWidth(),
         value = textFieldState.value,
         onValueChange = { value ->
             textFieldState.value = value
-            onSearchTextChanged(value.text)
+            onSearchQueryChanged(value.text)
         },
-        modifier = Modifier.fillMaxWidth(),
         leadingIcon = {
             Icon(
                 Icons.Default.Search,
@@ -123,7 +139,7 @@ fun SearchView(onSearchTextChanged: (String) -> Unit) {
                 IconButton(
                     onClick = {
                         textFieldState.value = TextFieldValue("")
-                        onSearchTextChanged(textFieldState.value.text)
+                        onSearchQueryChanged(textFieldState.value.text)
                     }
                 ) {
                     Icon(
@@ -152,10 +168,12 @@ fun SearchView(onSearchTextChanged: (String) -> Unit) {
 @Composable
 private fun SearchList(
     results: List<SearchResultEntity>,
-    onSearchItemClicked: (Int?) -> Unit
+    onSearchItemClicked: (Int) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val trainings = remember { results }
     LazyVerticalGrid(
+        modifier = modifier,
         columns = GridCells.Adaptive(dimensionResource(R.dimen.search_grid_width)),
         contentPadding = PaddingValues(dimensionResource(R.dimen.margin_padding_size_medium)),
         content = {
@@ -172,15 +190,15 @@ private fun SearchList(
 @Composable
 private fun SearchItem(
     training: SearchResultEntity,
-    onSearchItemClicked: (Int?) -> Unit
+    onSearchItemClicked: (Int) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Card(
-        onClick = { onSearchItemClicked.invoke(training.id) },
-        modifier = Modifier
+        modifier = modifier
             .padding(dimensionResource(R.dimen.margin_padding_size_small))
             .fillMaxWidth()
-            .height(dimensionResource(R.dimen.search_grid_eight))
-
+            .height(dimensionResource(R.dimen.search_grid_eight)),
+        onClick = { onSearchItemClicked(training.id) },
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -197,13 +215,13 @@ private fun SearchItem(
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.margin_padding_size_small)),
             ) {
                 Text(
-                    text = training.name.orEmpty(),
+                    text = training.name,
                     style = typography.titleSmall,
                     maxLines = 2
                 )
                 Text(
                     modifier = Modifier.padding(top = dimensionResource(id = R.dimen.margin_padding_size_micro)),
-                    text = training.releaseDate.orEmpty(),
+                    text = training.releaseDate,
                     style = typography.bodySmall,
                 )
             }
@@ -216,6 +234,6 @@ private fun SearchItem(
 @Composable
 fun SearchViewPreview() {
     TouchTunesSampleAppTheme {
-        SearchView {}
+        SearchBar(onSearchQueryChanged = {})
     }
 }

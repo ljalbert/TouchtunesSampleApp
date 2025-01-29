@@ -19,12 +19,12 @@ import com.lja.touchtunessampleapp.R
 
 @Composable
 fun AlbumDialog(
-    modifier: Modifier = Modifier,
     genre: String,
     price: String,
     currency: String,
     copyright: String,
-    onDialogPositiveButtonClicked: (() -> Unit)? = null
+    onConfirmationClicked: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     AlertDialog(
         onDismissRequest = {},
@@ -38,11 +38,7 @@ fun AlbumDialog(
             )
         },
         confirmButton = {
-            TextButton(
-                onClick = {
-                    onDialogPositiveButtonClicked?.invoke()
-                }
-            ) {
+            TextButton(onClick = onConfirmationClicked) {
                 Text(stringResource(R.string.dialog_detail_ok_button))
             }
         },

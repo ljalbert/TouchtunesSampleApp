@@ -1,4 +1,4 @@
-package com.lja.touchtunessampleapp.search.data.model
+package com.lja.touchtunessampleapp.data.model
 
 import kotlinx.serialization.Serializable
 
@@ -12,7 +12,7 @@ data class SearchResultDto(
     val artworkUrl60: String? = null,
     val collectionCensoredName: String? = null,
     val collectionExplicitness: String? = null,
-    val collectionId: Int? = null,
+    val collectionId: Int,
     val collectionName: String? = null,
     val collectionPrice: Double? = null,
     val collectionType: String? = null,

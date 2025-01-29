@@ -1,10 +1,10 @@
-package com.lja.touchtunessampleapp.search.domain.viewmodel
+package com.lja.touchtunessampleapp.ui.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.lja.touchtunessampleapp.common.State
-import com.lja.touchtunessampleapp.search.domain.usecase.ISearchUseCase
-import com.lja.touchtunessampleapp.search.mapper.toSearchResulEntity
-import com.lja.touchtunessampleapp.search.data.model.SearchResultDto
+import com.lja.touchtunessampleapp.data.mapper.toSearchResulEntity
+import com.lja.touchtunessampleapp.data.model.SearchResultDto
+import com.lja.touchtunessampleapp.domain.usecase.ISearchUseCase
+import com.lja.touchtunessampleapp.ui.stateMachine.State
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -54,10 +54,10 @@ class SearchViewModelTest {
     @Test
     fun `search query succeed`() = runTest {
         //given
-        val result = listOf(createFakeSearchResultDto())
+        val result = listOf(createFakeSearchResultEntity())
 
         //when
-        Mockito.`when`(searchUseCase.execute(query = any())).thenReturn(result)
+        Mockito.`when`(searchUseCase(query = any())).thenReturn(result)
 
         //then
         val states = mutableListOf<State>()
@@ -69,7 +69,7 @@ class SearchViewModelTest {
         assertEquals(states[0], SearchViewModel.SearchState.Loading)
         assertEquals(
             states[1],
-            SearchViewModel.SearchState.Success(result.map { it.toSearchResulEntity() })
+            SearchViewModel.SearchState.Success(result)
         )
 
         collectJob.cancel()
@@ -81,7 +81,7 @@ class SearchViewModelTest {
         val result = RuntimeException()
 
         //when
-        Mockito.`when`(searchUseCase.execute(query = any())).thenThrow(result)
+        Mockito.`when`(searchUseCase(query = any())).thenThrow(result)
 
         //then
         val states = mutableListOf<State>()
@@ -99,7 +99,7 @@ class SearchViewModelTest {
         collectJob.cancel()
     }
 
-    private fun createFakeSearchResultDto() =
+    private fun createFakeSearchResultEntity() =
         SearchResultDto(
             amgArtistId = 372703,
             artistId = 79789358,
@@ -122,5 +122,5 @@ class SearchViewModelTest {
             releaseDate = "2007-01-01T08:00:00Z",
             trackCount = 13,
             wrapperType = "collection"
-        )
+        ).toSearchResulEntity()
 }

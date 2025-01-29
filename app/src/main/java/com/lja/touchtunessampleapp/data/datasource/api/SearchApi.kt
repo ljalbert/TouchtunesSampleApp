@@ -1,10 +1,10 @@
-package com.lja.touchtunessampleapp.search.data.service
+package com.lja.touchtunessampleapp.data.datasource.api
 
-import com.lja.touchtunessampleapp.search.data.model.SearchResultResponse
+import com.lja.touchtunessampleapp.data.model.SearchResultResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface SearchService {
+interface SearchApi {
     companion object {
         const val MEDIA = "music"
         const val ENTITY = "album"
@@ -19,5 +19,6 @@ interface SearchService {
         @Query("term") term: String?,
     ): SearchResultResponse
 }
+
 
 //https://itunes.apple.com/search?media=music&entity=album&attribute=mixTerm&term=aaa

@@ -1,4 +1,4 @@
-package com.lja.touchtunessampleapp.search.data.model
+package com.lja.touchtunessampleapp.data.model
 
 import kotlinx.serialization.Serializable
 

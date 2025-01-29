@@ -1,12 +1,12 @@
 package com.lja.touchtunessampleapp.di
 
 import com.lja.touchtunessampleapp.BuildConfig
-import com.lja.touchtunessampleapp.search.domain.viewmodel.SearchViewModel
-import com.lja.touchtunessampleapp.search.domain.usecase.ISearchUseCase
-import com.lja.touchtunessampleapp.search.domain.usecase.SearchUseCase
-import com.lja.touchtunessampleapp.search.data.service.ISearchApi
-import com.lja.touchtunessampleapp.search.data.service.SearchApi
-import com.lja.touchtunessampleapp.search.data.service.SearchService
+import com.lja.touchtunessampleapp.ui.viewmodel.SearchViewModel
+import com.lja.touchtunessampleapp.domain.usecase.ISearchUseCase
+import com.lja.touchtunessampleapp.domain.usecase.SearchUseCase
+import com.lja.touchtunessampleapp.data.datasource.repository.ISearchRepository
+import com.lja.touchtunessampleapp.data.datasource.repository.SearchRepository
+import com.lja.touchtunessampleapp.data.datasource.api.SearchApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -33,15 +33,15 @@ val appModule = module {
             .baseUrl(BuildConfig.BASE_URL)
             .client(client)
             .build()
-            .create(SearchService::class.java)
+            .create(SearchApi::class.java)
     }
 
     factory<ISearchUseCase> {
         SearchUseCase(get())
     }
 
-    factory<ISearchApi> {
-        SearchApi(get())
+    factory<ISearchRepository> {
+        SearchRepository(get())
     }
 
     viewModel {

@@ -6,10 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.lja.touchtunessampleapp.search.domain.viewmodel.SearchViewModel
+import com.lja.touchtunessampleapp.ui.viewmodel.SearchViewModel
 import com.lja.touchtunessampleapp.ui.screen.SearchScreen
 import com.lja.touchtunessampleapp.ui.theme.TouchTunesSampleAppTheme
 import org.koin.androidx.compose.koinViewModel
@@ -21,18 +20,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             TouchTunesSampleAppTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    //color = Color.Black
+                    modifier = Modifier
+                        .fillMaxSize(),
                 ) {
                     val searchViewModel = koinViewModel<SearchViewModel>()
+                    val state = searchViewModel.observeState().collectAsStateWithLifecycle().value
 
                     SearchScreen(
-                        state = searchViewModel.observeState().collectAsStateWithLifecycle().value,
-                        event = searchViewModel.observeEvent()
-                            .collectAsStateWithLifecycle(initialValue = SearchViewModel.SearchEvent.None).value,
-                        onSearchTextChanged = searchViewModel::onSearchQueryChanged,
-                        onSearchItemClicked = searchViewModel::onSearchItemClicked,
-                        onDetailDialogPositiveButtonClicked = searchViewModel::onDetailDialogPositiveButtonClicked
+                        state = state,
+                        onSearchQueryChanged = searchViewModel::onSearchQueryChanged,
                     )
                 }
             }

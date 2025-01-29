@@ -1,10 +1,12 @@
-package com.lja.touchtunessampleapp.search.mapper
+package com.lja.touchtunessampleapp.data.mapper
 
-import com.lja.touchtunessampleapp.search.data.model.SearchResultDto
-import com.lja.touchtunessampleapp.search.domain.model.SearchResultDetailEntity
-import com.lja.touchtunessampleapp.search.domain.model.SearchResultEntity
+import com.lja.touchtunessampleapp.data.model.SearchResultDto
+import com.lja.touchtunessampleapp.domain.model.SearchResultEntity
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+
+fun List<SearchResultDto>.toSearchResulEntities() : List<SearchResultEntity> =
+    this.map { it.toSearchResulEntity() }
 
 fun SearchResultDto.toSearchResulEntity(): SearchResultEntity {
     val releaseYear =
@@ -19,16 +21,6 @@ fun SearchResultDto.toSearchResulEntity(): SearchResultEntity {
         price = collectionPrice?.toString().orEmpty(),
         currency = currency.orEmpty(),
         copyright = copyright.orEmpty()
-    )
-}
-
-fun SearchResultEntity.toSearchResulDetailEntity(): SearchResultDetailEntity {
-    return SearchResultDetailEntity(
-        id = id,
-        genreName = genreName,
-        price = price,
-        currency = currency,
-        copyright = copyright
     )
 }
 
