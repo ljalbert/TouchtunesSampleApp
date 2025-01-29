@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">TouchTunesSampleApp</string>
+
+    <string name="search_main_title">Welcome to\nyour learning portal. </string>
+    <string name="search_searchbar_hint">Search subjects, discipline or job title…</string>
+    <string name="search_searchbar_cd">Search subjects, discipline or job title…</string>
+    <string name="title_activity_search_screen">SearchScreen</string>
+    <string name="search_error_text">An error occured</string>
+
+    <string name="dialog_detail_genre_text">Genre: %s </string>
+    <string name="dialog_detail_genre_price">Price: %1$s %2$s </string>
+    <string name="dialog_detail_ok_button">Ok</string>
+
+</resources>
