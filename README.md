@@ -16,7 +16,7 @@ So here is my self review and the improvement I could have bring today :
 - Replace Retrofit with Ktor since Ktor is built in Kotlin and leverages Coroutines, offering more
   cohesive code with Kotlin projects. And use Result<> to handle success failures
 - While I used a State Machine pattern inspired by Redux which is suitable for small projects or
-  assessments, I would be in favor of building a State Machine SDL inspired by this
+  assessments, I would be in favor of building a State Machine DSL inspired by this
   project: [Tinder/StateMachine](https://github.com/Tinder/StateMachine).
 - Avoid using Dimensions to store dp values; instead, create Objects and build a Design System.
 - Put more effort into the UI since it is currently quite basic.
