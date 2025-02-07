@@ -2,21 +2,21 @@ package com.lja.touchtunessampleapp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lja.touchtunessampleapp.ui.stateMachine.Event
-import com.lja.touchtunessampleapp.ui.stateMachine.State
 import com.lja.touchtunessampleapp.domain.model.SearchResultEntity
 import com.lja.touchtunessampleapp.domain.usecase.ISearchUseCase
+import com.lja.touchtunessampleapp.ui.stateMachine.Event
+import com.lja.touchtunessampleapp.ui.stateMachine.State
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class SearchViewModel(
     private val searchUseCase: ISearchUseCase
 ) : ViewModel() {
-
-    companion object {
-        private const val DEFAULT_SEARCH_QUERY = "aaa"
-    }
 
     private val state = MutableStateFlow<State>(SearchState.None)
     fun observeState(): StateFlow<State> = state
@@ -34,12 +34,23 @@ class SearchViewModel(
         data class Error(val exception: Exception?) : SearchEvent()
     }
 
+    private val queryFlow = MutableStateFlow(DEFAULT_SEARCH_QUERY)
+
     init {
-        onSearchQueryChanged(DEFAULT_SEARCH_QUERY)
+        viewModelScope.launch {
+            debounceQueryFlow()
+        }
     }
 
     fun onSearchQueryChanged(query: String) {
-        reduceEvent(SearchEvent.Search(query))
+        queryFlow.value = query
+    }
+
+    @OptIn(FlowPreview::class)
+    private suspend fun debounceQueryFlow() {
+        queryFlow.debounce(DEBOUNCE_QUERY_DURATION).collectLatest { query ->
+            reduceEvent(SearchEvent.Search(query))
+        }
     }
 
     private fun reduceEvent(event: SearchEvent) {
@@ -79,3 +90,6 @@ class SearchViewModel(
         }
     }
 }
+
+private const val DEFAULT_SEARCH_QUERY = "aaa"
+private val DEBOUNCE_QUERY_DURATION = 500.milliseconds
